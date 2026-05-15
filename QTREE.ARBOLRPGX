@@ -1,0 +1,538 @@
+    š *====================================================
+    ‚ * Sistema     : Software Local
+    š *----------------------------------------------------
+    ‚ * Programa    : ARBOLRPG
+    ‚ * Clp         : ARBOL02CL
+    ‚ * Autor       : Roberto Echeverria Estay.
+    ‚ * Objetivo    : Dibujar Arbol de Llamados + Archivos
+    š *====================================================
+    ‚ * Declaracion De Archivos
+    š *====================================================
+     FINPUT   IF  F     179            DISK
+     FTREEOFF IF  E           K        DISK
+     FREFFILE IF  F     179            DISK                           UC
+     FTREETXT UF  F    1000            DISK                      A    UC
+    š *====================================================
+    ‚ * DEFINICION DE MATRICES
+    š *====================================================
+     E                    PROG     1000 10
+     E                    RLIN     1000 10
+     E                    RFIL     1000 17
+     E                    RLI2     1000  5
+     E                    USO     1  10  5
+     E                    CAB     1   2 17
+    š *====================================================
+    ‚ * Estructuras
+    š *====================================================
+     IINPUT   NS
+     I                                      100 110 WHLIB
+     I                                       11  20 WHPNAM
+     I                                       21  70 WHTEXT
+     I                                       89  99 WHFNAM
+     I                                      156 165 WHOTYP
+     ITREETXT NS
+     I                                        1 100 REGTXT
+     IREFFILE NS
+     I                                       89  99 FILNAM
+     I                                      100 110 WHLNAM
+     I                                      125 1260WHFUSG
+     IVARIA       DS
+     I I            '*VARIABLE'               1   9 CMD1
+     IPROCED      DS
+     I I            'ARBOL02CL'               1   9 CMD2
+     IRECORD      DS
+     I                                        1 250 CMD3
+     I                                      251 500 CMD4
+     I                                      501 750 CMD5
+     I                                      7511000 CMD6
+     IRLINEA      DS
+     I                                        1 250 CMD7
+     I                                      251 500 CMD8
+     I                                      501 750 CMD9
+     I                                      7511000 CMD10
+     ICAB01       DS
+     I                                        1 250 CMD11
+     I I            X'22'                    17  17 COLO1
+     I                                       18 100 SEP01
+     ICAB02       DS
+     I                                        1 250 CMD12
+     I I            X'3A'                    17  17 COLO2
+     I I            'Arbol de Llamados '     18  35 SEP02
+     I I            'Programa : '            36  46 SEP03
+     I                                       47  56 CABNAM
+     ICAB03       DS
+     I I            X'3A'                    17  17 COLO3
+     I I            'Archivos Utilizados '   18  37 SEP04
+     I I            'Programa Principal'     38  55 SEP05
+     IDSERR       DS
+     I I            ' *PGM no f'              1  10 ERR01
+     I I            'actible de'             11  20 ERR02
+     I I            ' analisis '             21  30 ERR021
+     I I            '...       '             31  40 ERR022
+     IDSERR2      DS
+     I I            ' *PGM Recu'              1  10 ERR03
+     I I            'rsivo     '             11  20 ERR04
+     IRECOR2      DS
+     I                                        1 250 FIL1
+     I                                      251 500 FIL2
+     I                                      501 750 FIL3
+     I                                      751 995 FIL4
+     IRECOR3      DS
+     I                                        1 250 FIL5
+     I                                      251 500 FIL6
+     I                                      501 750 FIL7
+     I                                      7511000 FIL8
+    š *====================================================
+    ‚ * Cuerpo Principal del Programa
+    š *====================================================
+    ‚ * Quito 1 a correlativo para volver a Nivel Anterior
+     C                     SUB  1         CORR2
+     C                     MOVE CORR2     CORR
+     C                     SETON                     LR
+    š *====================================================
+    ‚ * Rutina Inicial Recupera Listado de llamados
+    š *====================================================
+     C           *INZSR    BEGSR
+     C           *ENTRY    PLIST
+     C                     PARM           CORR    3
+     C                     PARM           REGIX  10
+     C                     PARM           RLIN
+     C                     PARM           REGFIX 10
+     C                     PARM           WTHFIL  4
+     C                     PARM           TEXTO  50
+     C                     PARM           WTHSRV  4
+     C                     PARM           SWSIG   1
+     C                     PARM           WTHUPD  4
+     C                     MOVE REGIX     REGIS  100
+     C                     MOVE REGFIX    REGFIL 100
+      * Reviso si muestro solo archivos de actualizacion/salida
+     C                     Z-ADD1         DESDE   20
+     C                     Z-ADD10        HASTA   20
+     C           WTHUPD    IFEQ '*YES'
+     C                     Z-ADD2         DESDE
+     C                     Z-ADD7         HASTA
+     C                     ENDIF
+    ‚ * Muevo Correlativo a Array de archivo TREETXT
+     C                     MOVE CORR      CORR2   30
+     C                     Z-ADDCORR2     I       50
+     C                     MOVE 0         SWCAB   10
+    ‚ * Cantidad Programas Referidos
+     C           I         IFGT 1
+     C           I         SUB  1         K       50
+     C                     MOVE REGIS     RLIN,K
+     C                     ENDIF
+    ‚ * Aumento Correlativo para proximo Nivel
+     C                     ADD  1         CORR2
+     C                     MOVE CORR2     CORR
+    ‚ * Programas Referidos
+     C                     READ INPUT                    90
+     C           *IN90     IFEQ *OFF
+     C           I         IFGE 2
+     C                     EXSR GRATEX
+     C                     ENDIF
+     C                     ENDIF
+     C           REGIS     IFEQ 1
+     C           WHOTYP    ANDEQ*BLANKS
+     C                     EXSR GRATEX
+     C                     ENDIF
+    ‚ * Archivos Referidos
+     C           I         IFGT 1
+     C           REGFIL    IFNE 0
+     C           WTHFIL    IFEQ '*YES'
+     C                     EXSR GRAFIL
+     C                     ENDIF
+     C                     ENDIF
+     C                     ENDIF
+    ‚ * Verifico si es un Programa
+      *
+     C           *IN90     DOWEQ*OFF
+     C           WHOTYP    IFEQ '*PGM'
+     C           WTHSRV    ANDEQ'*NO'
+     C                     MOVE '*YES'    WHOSW   4
+     C                     ELSE
+     C           WHOTYP    IFEQ '*SRVPGM'
+     C           WTHSRV    ANDEQ'*YES'
+     C                     MOVE '*YES'    WHOSW
+     C                     ELSE
+     C           WHOTYP    IFEQ '*PGM'
+     C           WTHSRV    ANDEQ'*YES'
+     C                     MOVE '*YES'    WHOSW
+     C                     ELSE
+     C                     MOVE '*NO '    WHOSW
+     C                     ENDIF
+     C                     ENDIF
+     C                     ENDIF
+      *
+     C           WTHSRV    IFEQ '*NO '
+     C           WHOSW     ANDEQ'*YES'
+      *
+     C           WTHSRV    OREQ '*YES'
+     C           WHOSW     ANDEQ'*YES'
+     C           WHLIB     IFNE 'QSYS'
+    ‚ * Cabecera
+     C           I         IFEQ 1
+     C           SWCAB     ANDEQ0
+     C                     EXSR ADDCAB
+     C           WTHFIL    IFEQ '*YES'
+     C                     EXSR PRIFIL
+     C                     ENDIF
+     C                     Z-ADD1         SWCAB
+     C                     ENDIF
+     C                     MOVELWHFNAM    PGM    10
+    ‚ * Lineas Conectoras
+     C           I         IFGT 1
+     C                     Z-ADD1         J       70
+     C                     DO   I
+     C                     MOVE RLIN,J    LINE    70
+     C           LINE      IFGT 0
+     C                     MOVE '|      ' PROG,J
+     C                     ENDIF
+     C                     ADD  1         J
+     C                     ENDDO
+     C                     ENDIF
+    ‚ * Muevo Nombre Programa para grabar archivo TREETXT
+     C                     MOVE PGM       PROG,I
+     C           I         IFGT 1
+     C                     Z-ADDI         T       50
+     C                     SUB  1         T
+     C                     MOVE '+----->' PROG,T
+     C                     ENDIF
+     C                     MOVEAPROG      RECORD
+     C                     OPEN TREETXT
+     C                     EXCPTADDPGM
+     C                     CLOSETREETXT
+    ‚ * Proximo Nivel de Referencias
+     C           I         IFGT 1
+     C                     MOVE RLIN,K    LINE
+     C                     SUB  1         LINE
+     C                     MOVE LINE      RLIN,K
+     C                     ENDIF
+    ‚ * Llamado a proximo Nivel de Referencias de programa
+     C           '*'       SCAN PGM       POS     50     51
+     C           PGM       IFNE VARIA
+     C           *IN51     ANDEQ*OFF
+     C                     MOVE WTHFIL    WTHAUX  4
+     C                     MOVE WHFNAM    WHFANT 11
+     C           WHPNAM    IFNE WHFNAM
+     C                     CALL PROCED
+     C                     PARM           CORR
+     C                     PARM           PGM
+     C                     PARM           RLIN
+     C                     PARM           WTHFIL
+     C                     PARM           WHTEXT
+     C                     PARM           WTHSRV
+     C                     PARM           SWSIG
+     C                     PARM           WTHUPD
+     C                     ELSE
+     C                     Z-ADDI         P       50
+     C                     ADD  1         P
+     C                     MOVE ERR03     PROG,P
+     C                     ADD  1         P
+     C                     MOVE ERR04     PROG,P
+     C                     EXSR GRAERR
+     C                     ENDIF
+      *
+     C           WTHFIL    IFEQ '*ERR'
+     C                     Z-ADDI         P       50
+     C                     ADD  1         P
+     C                     MOVE ERR01     PROG,P
+     C                     ADD  1         P
+     C                     MOVE ERR02     PROG,P
+     C                     ADD  1         P
+     C                     MOVE ERR021    PROG,P
+     C                     ADD  1         P
+     C                     MOVE ERR022    PROG,P
+     C                     EXSR GRAERR
+     C                     ENDIF
+      *
+     C                     ENDIF
+     C                     ENDIF
+     C                     ENDIF
+     C                     READ INPUT                    90
+     C                     ENDDO
+     C                     ENDSR
+    š *====================================================
+    ‚ * GRAERR: Graba Error PGM no encontrado o recursivo
+    š *====================================================
+     C           GRAERR    BEGSR
+     C                     OPEN TREETXT
+     C           9999999   SETGTTREETXT
+     C                     READPTREETXT                  70
+     C                     MOVEAPROG      RECORD
+     C                     EXCPTUPDTXT
+     C                     CLOSETREETXT
+     C                     MOVE WTHAUX    WTHFIL
+     C                     MOVE *BLANKS   PROG,P
+     C                     SUB  1         P
+     C                     MOVE *BLANKS   PROG,P
+     C                     ENDSR
+    š *====================================================
+    ‚ * GRATEX:
+    š *====================================================
+     C           GRATEX    BEGSR
+     C                     OPEN TREETXT
+     C           9999999   SETGTTREETXT
+     C                     READPTREETXT                  70
+     C                     MOVEAREGTXT    PROG,1
+     C                     MOVEAWHTEXT    PROG,I
+     C                     MOVEAPROG      RECORD
+     C                     EXCPTUPDTXT
+     C                     CLOSETREETXT
+     C                     MOVEA*BLANKS   PROG,1
+     C                     ENDSR
+    š *====================================================
+    ‚ * ADDCAB: Adiciona cabecera a Archivo TREETXT
+    š *====================================================
+     C           ADDCAB    BEGSR
+     C                     OPEN TREETXT
+     C                     MOVE *ALL'*'   SEP01
+     C                     EXCPTADDCA1
+      *
+     C                     MOVE WHPNAM    CABNAM
+     C                     EXCPTADDCA2
+     C                     EXCPTADDCA1
+      *
+     C                     MOVE *BLANKS   RECORD
+     C                     EXCPTADDPGM
+      *
+     C           WTHFIL    IFEQ '*YES'
+     C                     MOVELCAB03     RECORD
+     C                     EXCPTADDPGM
+     C                     ENDIF
+      *
+     C                     CLOSETREETXT
+     C                     ENDSR
+    š *====================================================
+    ‚ * GRAFIL: Graba Archivos (*FILE) Referidos
+    š *====================================================
+     C           GRAFIL    BEGSR
+     C                     CLEARRFIL
+     C                     Z-ADD0         CONFIL  30
+     C                     OPEN REFFILE
+     C                     READ REFFILE                  92
+     C                     MOVE *BLANKS   FILANT 11
+     C                     Z-ADDI         G       30
+     C                     SUB  1         G
+     C                     Z-ADD1         SWGRA   10
+      *  Graba Cabeceras para uso de archivos
+     C           REGFIL    IFGE 1
+     C                     MOVE CAB,1     RFIL,G
+     C                     ENDIF
+      *
+     C           G         ADD  1         H       20
+     C           REGFIL    IFGE 2
+     C                     MOVE CAB,1     RFIL,H
+     C                     ENDIF
+      *
+     C                     ADD  1         H
+     C           REGFIL    IFGE 3
+     C                     MOVE CAB,1     RFIL,H
+     C                     ENDIF
+     C                     MOVEARFIL      RECOR2
+     C                     MOVE RECOR2    RECOR3
+     C                     MOVEARECOR3    RLI2
+     C                     EXSR LINEA
+     C                     EXSR GRABA
+     C                     CLEARRFIL
+      *
+     C           REGFIL    IFGE 1
+     C                     MOVE CAB,2     RFIL,G
+     C                     ENDIF
+      *
+     C           G         ADD  1         H
+     C           REGFIL    IFGE 2
+     C                     MOVE CAB,2     RFIL,H
+     C                     ENDIF
+      *
+     C                     ADD  1         H
+     C           REGFIL    IFGE 3
+     C                     MOVE CAB,2     RFIL,H
+     C                     ENDIF
+     C                     MOVEARFIL      RECOR2
+     C                     MOVE RECOR2    RECOR3
+     C                     MOVEARECOR3    RLI2
+     C                     EXSR LINEA
+     C                     EXSR GRABA
+     C                     CLEARRFIL
+    ‚ *  Acumula de 3 Horizontal
+     C           *IN92     DOWEQ*OFF
+     C           WHLNAM    IFNE *BLANKS
+     C           FILANT    IFNE FILNAM
+     C                     Z-ADDWHFUSG    Y       20
+     C           Y         IFEQ 0
+     C                     Z-ADD9         Y
+     C                     ENDIF
+     C           Y         IFGT 9
+     C                     Z-ADD10        Y
+     C                     ENDIF
+     C           Y         IFGE DESDE
+     C           Y         ANDLEHASTA
+     C                     MOVE FILNAM    RFIL,G
+     C                     MOVELUSO,Y     RFIL,G
+     C                     ADD  1         G
+     C                     ADD  1         CONFIL
+     C                     MOVELFILNAM    FILANT
+     C                     ENDIF
+    ‚ * graba Lotes de 3
+     C           CONFIL    IFEQ 3
+     C           SWGRA     IFEQ 1
+     C                     Z-ADD2         SWGRA
+     C                     ENDIF
+     C                     MOVEARFIL      RECOR2
+     C                     MOVE RECOR2    RECOR3
+     C                     MOVEARECOR3    RLI2
+     C                     EXSR LINEA
+     C                     EXSR GRABA
+     C                     CLEARRFIL
+     C                     Z-ADDI         G
+     C                     SUB  1         G
+     C                     Z-ADD0         CONFIL  30
+     C                     ENDIF
+      *
+     C                     ENDIF
+     C                     ENDIF
+     C                     READ REFFILE                  92
+     C                     ENDDO
+     C                     CLOSEREFFILE
+    ‚ * Graba Ultimo Lote de menos de 3 archivos *FILE
+     C           CONFIL    IFLT 3
+     C           CONFIL    ANDGT0
+     C           SWGRA     IFEQ 1
+     C                     Z-ADD2         SWGRA
+     C                     ENDIF
+     C                     MOVEARFIL      RECOR2
+     C                     MOVE RECOR2    RECOR3
+     C                     MOVEARECOR3    RLI2
+     C                     EXSR LINEA
+     C                     EXSR GRABA
+     C                     ENDIF
+     C                     Z-ADDI         IAUX    50
+     C                     SUB  1         I
+     C           I         IFEQ 0
+     C                     Z-ADD1         I
+     C                     ENDIF
+     C                     MOVE *BLANKS   RECOR2
+     C                     MOVE *BLANKS   RECOR3
+     C                     MOVE *BLANKS   RLI2
+     C                     EXSR LINEA
+     C                     EXSR GRABA
+     C                     Z-ADDIAUX      I
+     C                     ENDSR
+    š *====================================================
+    ‚ * GRABA : Graba lotes de *FILE encontrados
+    š *====================================================
+     C           GRABA     BEGSR
+     C                     MOVEARLI2      RECOR3
+     C                     OPEN TREETXT
+     C                     EXCPTADDFIL
+     C                     CLOSETREETXT
+     C                     ENDSR
+    š *====================================================
+    ‚ * LINEA : Continua Linea Conectora al grabar *FILE
+    š *====================================================
+     C           LINEA     BEGSR
+    ‚ * Lineas Conectoras al Grabar Tipo *FILE
+     C           I         IFGT 0
+     C                     Z-ADD1         J       70
+     C                     DO   I
+     C                     MOVE RLIN,J    LINE    70
+     C           LINE      IFGT 0
+     C           J         MULT 2         M       70
+     C                     SUB  1         M
+     C           RLI2,M    IFEQ *BLANKS
+     C                     MOVE '| '      RLI2,M
+     C                     ENDIF
+     C                     ENDIF
+     C                     ADD  1         J
+     C                     ENDDO
+     C                     ENDIF
+     C                     ENDSR
+    š *====================================================
+    ‚ * PRIFIL: Graba Archivos de Programa Primario
+    š *====================================================
+     C           PRIFIL    BEGSR
+     C                     SETON                     50
+     C                     CLEARRFIL
+     C                     OPEN REFFILE
+     C                     READ REFFILE                  92
+     C                     MOVE *BLANKS   FILANT 11
+     C                     Z-ADD3         G       30
+    ‚ *  Acumula de 3 Horizontal
+     C           *IN92     DOWEQ*OFF
+     C           WHLNAM    IFNE *BLANKS
+     C           FILANT    IFNE FILNAM
+      *****
+     C                     Z-ADDWHFUSG    Y       20
+     C           Y         IFEQ 0
+     C                     Z-ADD9         Y
+     C                     ENDIF
+     C           Y         IFGT 9
+     C                     Z-ADD10        Y
+     C                     ENDIF
+     C           Y         IFGE DESDE
+     C           Y         ANDLEHASTA
+      ******
+     C                     MOVE FILNAM    RFIL,G
+     C                     MOVELUSO,Y     RFIL,G
+     C                     ADD  1         G
+     C                     MOVELFILNAM    FILANT
+     C                     ENDIF
+     C                     ENDIF
+    ‚ * graba Lotes de 3
+     C           G         IFEQ 6
+     C                     MOVEARFIL      RECOR3
+     C                     OPEN TREETXT
+     C                     EXCPTADDFIL
+     C                     CLOSETREETXT
+     C                     Z-ADD3         G
+     C                     CLEARRFIL
+     C                     ENDIF
+      *
+     C                     ENDIF
+     C                     READ REFFILE                  92
+     C                     ENDDO
+     C                     CLOSEREFFILE
+    ‚ * Graba Ultimo Lote de menos de 3 archivos *FILE
+     C           G         IFLT 6
+     C           G         ANDGT2
+     C                     MOVEARFIL      RECOR3
+     C                     OPEN TREETXT
+     C                     EXCPTADDFIL
+     C                     MOVE *BLANKS   RECOR3
+     C                     EXCPTADDFIL
+     C                     CLOSETREETXT
+     C                     CLEARRFIL
+     C                     ENDIF
+     C                     SETOF                     50
+     C                     ENDSR
+    š *====================================================
+    ‚ * Grabo Archivo Plano segun Nivel de Llamado.
+    š *====================================================
+     OTREETXT EADD             ADDPGM
+     O                         RECORD  1000
+      *
+     OTREETXT EADD             ADDCA1
+     O                         CAB01    250
+      *
+     OTREETXT EADD             ADDCA2
+     O                         CAB02    250
+      *
+     OTREETXT EADD             ADDFIL
+     O                         RECOR3  1000
+     O                 50                17 X'38'
+     OTREETXT E                UPDTXT
+     O                         RECORD  1000
+**
+E
+S
+E/S
+A
+E/A
+S/A
+E/S/A
+N/E
+N/D
+Other
+**
+Uso   Archivo
+----- ----------

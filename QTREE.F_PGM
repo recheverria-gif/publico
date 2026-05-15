@@ -1,0 +1,2 @@
+ create table QTEMP/TABLAPGM as (SELECT * FROM QTEMP/REFPASO
+  where WHOTYP = '*PGM') WITH DATA;

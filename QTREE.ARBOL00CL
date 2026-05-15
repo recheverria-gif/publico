@@ -1,0 +1,19 @@
+/*š============================================================== */
+/*‚ Sistema     : Arbol de Llamados                               */
+/*‚ Origen      : Software Local                                  */
+/*š-------------------------------------------------------------- */
+/*‚ Programa    : ARBOL01CL                                       */
+/*‚ Autor       : Roberto Echeverria Estay.                       */
+/*‚ Objetivo    : Compila CL's y Crea Comando de Ejecucion        */
+/*š============================================================== */
+             PGM
+             CRTCLPGM   PGM(QGPL/ARBOL01CL) +
+                          SRCFILE(BINTERTOOL/QTREE) +
+                          SRCMBR(ARBOL01CL) REPLACE(*YES) AUT(*ALL)
+             CRTCLPGM   PGM(QGPL/ARBOL02CL) +
+                          SRCFILE(BINTERTOOL/QTREE) +
+                          SRCMBR(ARBOL02CL) REPLACE(*YES) AUT(*ALL)
+             CRTCMD     CMD(QGPL/ARBOL) PGM(ARBOL01CL) +
+                          SRCFILE(BINTERTOOL/QTREE) AUT(*ALL)
+             RCLRSC
+             ENDPGM

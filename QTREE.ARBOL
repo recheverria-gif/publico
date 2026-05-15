@@ -1,0 +1,12 @@
+             CMD        PROMPT('Arbol de Llamados')
+             PARM       KWD(TOPGM) TYPE(*NAME) LEN(10) MIN(1) +
+                          ALWVAR(*NO) PROMPT('Programa:')
+             PARM       KWD(WTHFILE) TYPE(*CHAR) LEN(4) RSTD(*YES) +
+                          DFT(*NO) VALUES(*NO *YES) PROMPT('Mostrar +
+                          Archivos:')
+             PARM       KWD(WTHSRV) TYPE(*CHAR) LEN(4) RSTD(*YES) +
+                          DFT(*NO) VALUES(*NO *YES) PROMPT('Incluir +
+                          Programas de Servicio:')
+             PARM       KWD(WTHUPD) TYPE(*CHAR) LEN(4) RSTD(*YES) +
+                          DFT(*NO) VALUES(*NO *YES) PROMPT('solo +
+                          FILE de Update/Salida:')

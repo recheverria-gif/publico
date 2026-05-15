@@ -1,0 +1,5 @@
+                R RTREEFIL
+                  TREEFI        11A         COLHDG('Archivo')
+                  TREEUS        10A         COLHDG('Uso')
+      *
+                K TREEFI
