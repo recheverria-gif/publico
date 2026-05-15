@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa mental interactivo - QTREE</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #94a3b8;
+      --primary: #2563eb;
+      --primary-2: #1d4ed8;
+      --accent: #7c3aed;
+      --border: #dbe3f0;
+      --shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .title { font-weight: 700; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button, input, a.btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    button:hover, a.btn:hover { border-color: #bfd0f5; }
+    .primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .primary:hover { background: var(--primary-2); }
+    input { min-width: 220px; }
+    .zoom-badge {
+      min-width: 76px;
+      text-align: center;
+      font-weight: 700;
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+    }
+    #viewport {
+      position: fixed;
+      inset: 60px 0 0 0;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #viewport.dragging { cursor: grabbing; }
+    #canvas {
+      position: absolute;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+      padding: 28px 28px 120px 28px;
+      min-width: 1800px;
+      min-height: 1200px;
+    }
+    .tree, .tree ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
+    .tree ul {
+      margin-left: 26px;
+      padding-left: 28px;
+    }
+    .tree ul::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 10px;
+      bottom: 0;
+      border-left: 2px solid var(--line);
+    }
+    .tree li {
+      position: relative;
+      padding: 12px 0 12px 34px;
+    }
+    .tree li::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 10px;
+      width: 18px;
+      border-top: 2px solid var(--line);
+    }
+    .tree li:last-child > ul::before { bottom: auto; height: 28px; }
+    .node {
+      display: inline-block;
+      min-width: 310px;
+      max-width: 460px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      vertical-align: top;
+    }
+    .root { border-left-color: var(--accent); background: #f3e8ff; }
+    .cmd { border-left-color: #2563eb; }
+    .cl { border-left-color: #059669; }
+    .rpg { border-left-color: #dc2626; }
+    .sql { border-left-color: #d97706; }
+    .dds { border-left-color: #0f766e; }
+    .node-head { display: flex; align-items: flex-start; gap: 10px; }
+    .toggle {
+      width: 28px; height: 28px; flex: 0 0 28px;
+      border-radius: 999px; border: 1px solid var(--border); background: #fff;
+      font-weight: 700; cursor: pointer;
+    }
+    .node-title { margin: 0 0 6px; font-size: 16px; }
+    .node p { margin: 0; color: #374151; line-height: 1.45; font-size: 14px; }
+    .hidden-children { display: none; }
+    .highlight > .node {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .muted { opacity: .22; }
+    .minimap {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: 260px;
+      height: 180px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 25;
+      overflow: hidden;
+    }
+    .minimap header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+    #miniWrap {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 38px);
+      overflow: hidden;
+      cursor: pointer;
+      background: #fbfdff;
+    }
+    #miniCanvas {
+      position: absolute;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+    }
+    #miniViewport {
+      position: absolute;
+      border: 2px solid #2563eb;
+      background: rgba(37,99,235,.12);
+      pointer-events: none;
+    }
+    .help {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 20;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      max-width: 340px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    @media (max-width: 900px) {
+      .minimap { width: 220px; height: 150px; }
+      .help { max-width: 260px; }
+      input { min-width: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">QTREE · Mapa mental interactivo</div>
+    <div class="controls">
+      <a class="btn" href="./index.html">Inicio</a>
+      <a class="btn" href="./documentacion.html">Documentación</a>
+      <input id="search" type="search" placeholder="Buscar nodo..." />
+      <button id="expandAll">Expandir todo</button>
+      <button id="collapseAll">Colapsar todo</button>
+      <button id="zoomOut">−</button>
+      <div id="zoomBadge" class="zoom-badge">100%</div>
+      <button id="zoomIn">+</button>
+      <button id="resetView" class="primary">Centrar</button>
+    </div>
+  </div>
+
+  <div id="viewport">
+    <div id="canvas">
+      <ul class="tree" id="treeRoot">
+        <li>
+          <div class="node root" data-title="QTREE árbol de llamados sistema principal">
+            <div class="node-head">
+              <button class="toggle" aria-label="Alternar">−</button>
+              <div>
+                <h3 class="node-title">QTREE - Árbol de Llamados</h3>
+                <p>Sistema para analizar referencias entre programas y archivos en IBM i, generando una vista jerárquica del flujo de llamados en TREETXT.</p>
+              </div>
+            </div>
+          </div>
+          <ul>
+            <li>
+              <div class="node cmd" data-title="QTREE ARBOL comando entrada parametros">
+                <div class="node-head">
+                  <button class="toggle">−</button>
+                  <div>
+                    <h3 class="node-title">QTREE.ARBOL</h3>
+                    <p>Define el comando de entrada. Recibe TOPGM, WTHFILE, WTHSRV y WTHUPD para controlar el análisis.</p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="node cl" data-title="QTREE ARBOL00CL compilacion instalacion comando">
+                <div class="node-head">
+                  <button class="toggle">−</button>
+                  <div>
+                    <h3 class="node-title">QTREE.ARBOL00CL</h3>
+                    <p>Programa de instalación. Compila ARBOL01CL, ARBOL02CL y crea el comando ARBOL.</p>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="node cl" data-title="QTREE ARBOL01CL controlador principal temporales ejecucion">
+                <div class="node-head">
+                  <button class="toggle">−</button>
+                  <div>
+                    <h3 class="node-title">QTREE.ARBOL01CL</h3>
+                    <p>Controlador principal. Limpia QTEMP, crea archivos auxiliares, llama a ARBOL02CL y muestra TREETXT al final.</p>
+                  </div>
+                </div>
+              </div>
+              <ul>
+                <li>
+                  <div class="node cl" data-title="QTREE ARBOL02CL motor analisis dsppgmref sql orquestacion">
+                    <div class="node-head">
+                      <button class="toggle">−</button>
+                      <div>
+                        <h3 class="node-title">QTREE.ARBOL02CL</h3>
+                        <p>Motor del análisis. Ejecuta DSPPGMREF, separa programas y archivos, filtra datos con SQL, prepara overrides y llama al RPG generador.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <ul>
+                    <li>
+                      <div class="node sql" data-title="F PGM GRP agrupacion programas referencias">
+                        <div class="node-head">
+                          <button class="toggle">−</button>
+                          <div>
+                            <h3 class="node-title">QTREE.F_PGM_GRP</h3>
+                            <p>Copia todas las referencias de programas desde QTEMP/REFPASO para su agrupación base.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node sql" data-title="F PGM filtro solo programas">
+                        <div class="node-head">
+                          <button class="toggle">−</button>
+                          <div>
+                            <h3 class="node-title">QTREE.F_PGM</h3>
+                            <p>Filtra únicamente objetos de tipo *PGM.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node sql" data-title="F PGM SRV filtro programas y service programs">
+                        <div class="node-head">
+                          <button class="toggle">−</button>
+                          <div>
+                            <h3 class="node-title">QTREE.F_PGM_SRV</h3>
+                            <p>Filtra objetos de tipo *PGM y *SRVPGM cuando se solicita incluir programas de servicio.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node sql" data-title="FILTROFIL filtro archivos referencias">
+                        <div class="node-head">
+                          <button class="toggle">−</button>
+                          <div>
+                            <h3 class="node-title">QTREE.FILTROFIL</h3>
+                            <p>Copia o agrupa las referencias de archivos para el procesamiento visual posterior.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="node rpg" data-title="ARBOLRPG generador visual arbol llamados archivos">
+                        <div class="node-head">
+                          <button class="toggle">−</button>
+                          <div>
+                            <h3 class="node-title">QTREE.ARBOLRPG</h3>
+                            <p>Genera la salida visual del árbol. Dibuja conectores, cabeceras, archivos usados y profundiza el análisis llamando nuevamente a ARBOL02CL.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>
+                          <div class="node rpg" data-title="ARBOLRPGX variante alternativa formato visual">
+                            <div class="node-head">
+                              <button class="toggle">−</button>
+                              <div>
+                                <h3 class="node-title">QTREE.ARBOLRPGX</h3>
+                                <p>Variante de ARBOLRPG con diferencias menores de presentación y comportamiento auxiliar.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li>
+                          <div class="node dds" data-title="TREEFILE dds archivo auxiliar uso archivos">
+                            <div class="node-head">
+                              <button class="toggle">−</button>
+                              <div>
+                                <h3 class="node-title">QTREE.TREEFILE</h3>
+                                <p>DDS del archivo físico TREEFILE. Guarda nombre del archivo y tipo de uso para control y consulta.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="minimap" id="minimap">
+    <header>
+      <span>Minimapa</span>
+      <button id="toggleMini">Ocultar</button>
+    </header>
+    <div id="miniWrap">
+      <div id="miniCanvas"></div>
+      <div id="miniViewport"></div>
+    </div>
+  </div>
+
+  <div class="help">
+    <strong>Controles:</strong><br>
+    Arrastra para mover · rueda del mouse para zoom · usa + / − para acercar o alejar · doble clic en un nodo para centrar · busca por nombre o descripción · usa el minimapa para saltar a otra zona.
+  </div>
+
+  <script>
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('canvas');
+    const search = document.getElementById('search');
+    const zoomBadge = document.getElementById('zoomBadge');
+    const miniCanvas = document.getElementById('miniCanvas');
+    const miniViewport = document.getElementById('miniViewport');
+    const miniWrap = document.getElementById('miniWrap');
+    const minimap = document.getElementById('minimap');
+    const toggleMini = document.getElementById('toggleMini');
+
+    let scale = 1;
+    let tx = 40;
+    let ty = 40;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    function applyTransform() {
+      canvas.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      zoomBadge.textContent = `${Math.round(scale * 100)}%`;
+      updateMini();
+    }
+
+    function clampScale(value) {
+      return Math.max(0.35, Math.min(2.5, value));
+    }
+
+    function zoomAt(clientX, clientY, factor) {
+      const rect = viewport.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const worldX = (x - tx) / scale;
+      const worldY = (y - ty) / scale;
+      scale = clampScale(scale * factor);
+      tx = x - worldX * scale;
+      ty = y - worldY * scale;
+      applyTransform();
+    }
+
+    document.getElementById('zoomIn').addEventListener('click', () => zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2 + 60, 1.15));
+    document.getElementById('zoomOut').addEventListener('click', () => zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2 + 60, 1 / 1.15));
+    document.getElementById('resetView').addEventListener('click', () => {
+      scale = 1;
+      tx = 40;
+      ty = 40;
+      applyTransform();
+    });
+
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+      zoomAt(e.clientX, e.clientY, factor);
+    }, { passive: false });
+
+    viewport.addEventListener('mousedown', (e) => {
+      dragging = true;
+      viewport.classList.add('dragging');
+      startX = e.clientX - tx;
+      startY = e.clientY - ty;
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      tx = e.clientX - startX;
+      ty = e.clientY - startY;
+      applyTransform();
+    });
+    window.addEventListener('mouseup', () => {
+      dragging = false;
+      viewport.classList.remove('dragging');
+    });
+
+    function toggleBranch(button, forceExpand = null) {
+      const li = button.closest('li');
+      const childList = li.querySelector(':scope > ul');
+      if (!childList) return;
+      const collapse = forceExpand === null ? !childList.classList.contains('hidden-children') : !forceExpand;
+      childList.classList.toggle('hidden-children', collapse);
+      button.textContent = collapse ? '+' : '−';
+      updateMini();
+    }
+
+    document.querySelectorAll('.toggle').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleBranch(btn);
+      });
+    });
+
+    document.getElementById('expandAll').addEventListener('click', () => {
+      document.querySelectorAll('.toggle').forEach(btn => toggleBranch(btn, true));
+    });
+    document.getElementById('collapseAll').addEventListener('click', () => {
+      document.querySelectorAll('.toggle').forEach(btn => toggleBranch(btn, false));
+    });
+
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const rect = node.getBoundingClientRect();
+        const vrect = viewport.getBoundingClientRect();
+        tx += (vrect.width / 2) - (rect.left - vrect.left + rect.width / 2);
+        ty += (vrect.height / 2) - (rect.top - vrect.top + rect.height / 2);
+        applyTransform();
+      });
+    });
+
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      const items = Array.from(document.querySelectorAll('#treeRoot li'));
+      if (!q) {
+        items.forEach(li => li.classList.remove('highlight', 'muted'));
+        return;
+      }
+      items.forEach(li => {
+        const node = li.querySelector(':scope > .node');
+        const text = (node?.dataset.title || '') + ' ' + (node?.innerText || '');
+        const match = text.toLowerCase().includes(q);
+        li.classList.toggle('highlight', match);
+        li.classList.toggle('muted', !match);
+      });
+    });
+
+    function buildMini() {
+      miniCanvas.innerHTML = canvas.innerHTML;
+      miniCanvas.querySelectorAll('button').forEach(b => b.remove());
+      miniCanvas.querySelectorAll('.help').forEach(el => el.remove());
+      miniCanvas.querySelectorAll('.topbar').forEach(el => el.remove());
+      miniCanvas.querySelectorAll('*').forEach(el => {
+        el.style.pointerEvents = 'none';
+      });
+      updateMini();
+    }
+
+    function updateMini() {
+      const sourceWidth = canvas.scrollWidth;
+      const sourceHeight = canvas.scrollHeight;
+      const wrapWidth = miniWrap.clientWidth;
+      const wrapHeight = miniWrap.clientHeight;
+      const miniScale = Math.min(wrapWidth / sourceWidth, wrapHeight / sourceHeight);
+      miniCanvas.style.transform = `scale(${miniScale})`;
+      miniCanvas.style.width = sourceWidth + 'px';
+      miniCanvas.style.height = sourceHeight + 'px';
+
+      const viewLeft = -tx / scale;
+      const viewTop = -ty / scale;
+      const viewWidth = viewport.clientWidth / scale;
+      const viewHeight = viewport.clientHeight / scale;
+
+      miniViewport.style.left = (viewLeft * miniScale) + 'px';
+      miniViewport.style.top = (viewTop * miniScale) + 'px';
+      miniViewport.style.width = (viewWidth * miniScale) + 'px';
+      miniViewport.style.height = (viewHeight * miniScale) + 'px';
+    }
+
+    miniWrap.addEventListener('click', (e) => {
+      const sourceWidth = canvas.scrollWidth;
+      const sourceHeight = canvas.scrollHeight;
+      const wrapWidth = miniWrap.clientWidth;
+      const wrapHeight = miniWrap.clientHeight;
+      const miniScale = Math.min(wrapWidth / sourceWidth, wrapHeight / sourceHeight);
+      const x = e.offsetX / miniScale;
+      const y = e.offsetY / miniScale;
+      tx = viewport.clientWidth / 2 - x * scale;
+      ty = viewport.clientHeight / 2 - y * scale;
+      applyTransform();
+    });
+
+    toggleMini.addEventListener('click', () => {
+      const hidden = miniWrap.style.display === 'none';
+      miniWrap.style.display = hidden ? 'block' : 'none';
+      miniViewport.style.display = hidden ? 'block' : 'none';
+      toggleMini.textContent = hidden ? 'Ocultar' : 'Mostrar';
+      minimap.style.height = hidden ? '180px' : 'auto';
+    });
+
+    window.addEventListener('resize', updateMini);
+
+    applyTransform();
+    buildMini();
+  </script>
+</body>
+</html>
