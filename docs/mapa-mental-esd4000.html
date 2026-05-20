@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa mental ESD4000 - Grupo Familiar / Cónyuge</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121933;
+      --card-2: #182247;
+      --text: #eaf0ff;
+      --muted: #b8c3e0;
+      --accent: #7cc4ff;
+      --accent-2: #8ef0c9;
+      --warn: #ffd166;
+      --border: #2b386d;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1020, #0e1530 40%, #10183a);
+      color: var(--text);
+    }
+    header {
+      padding: 32px 20px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+    .subtitle {
+      color: var(--muted);
+      max-width: 900px;
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 20px 40px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 20px;
+    }
+    .panel {
+      background: rgba(18,25,51,.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel h2 {
+      margin: 0;
+      padding: 18px 20px;
+      font-size: 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .panel .content { padding: 18px 20px 22px; }
+    .mindmap {
+      min-height: 720px;
+      overflow: auto;
+    }
+    .tree, .tree ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 22px;
+      position: relative;
+    }
+    .tree ul::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 8px;
+      width: 2px;
+      background: linear-gradient(var(--border), transparent 90%);
+    }
+    .tree li {
+      position: relative;
+      margin: 12px 0;
+    }
+    .tree li::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      left: -14px;
+      width: 14px;
+      height: 2px;
+      background: var(--border);
+    }
+    .node {
+      display: inline-block;
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      min-width: 240px;
+      max-width: 520px;
+    }
+    .node.root {
+      background: linear-gradient(180deg, #12315e, #1c4b8a);
+      border-color: #6fb7ff;
+    }
+    .node h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+    .root h3 { color: white; }
+    .node p, .node li {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.45;
+      font-size: .95rem;
+    }
+    .node ul {
+      margin-top: 8px;
+      padding-left: 18px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(124,196,255,.15);
+      color: var(--accent);
+      border: 1px solid rgba(124,196,255,.35);
+      font-size: .8rem;
+      margin: 4px 6px 0 0;
+    }
+    .tag.ok {
+      background: rgba(142,240,201,.12);
+      color: var(--accent-2);
+      border-color: rgba(142,240,201,.35);
+    }
+    .tag.warn {
+      background: rgba(255,209,102,.12);
+      color: var(--warn);
+      border-color: rgba(255,209,102,.35);
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 8px 12px;
+      align-items: start;
+      font-size: .95rem;
+    }
+    .kv div:nth-child(odd) {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,.02);
+    }
+    code {
+      background: rgba(255,255,255,.06);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #d8ecff;
+    }
+    .small { color: var(--muted); font-size: .9rem; }
+    @media (max-width: 960px) {
+      .wrap { grid-template-columns: 1fr; }
+      .mindmap { min-height: auto; }
+      .kv { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mapa mental: alta de relación de grupo familiar para cónyuge</h1>
+    <p class="subtitle">
+      Resumen visual basado en el fuente RPGLE <strong>ESD4000</strong>. Esta página explica los campos mínimos obligatorios,
+      los valores identificados en el código y las validaciones que aplica el programa al crear una relación de tipo
+      <strong>Grupo Familiar</strong> para un <strong>cónyuge</strong>.
+    </p>
+  </header>
+
+  <main class="wrap">
+    <section class="panel mindmap">
+      <h2>Mapa mental</h2>
+      <div class="content">
+        <ul class="tree">
+          <li>
+            <div class="node root">
+              <h3>ESD4000 → Nueva relación grupo familiar / cónyuge</h3>
+              <p>El programa administra relaciones entre un cliente/cuenta principal y una persona o entidad relacionada.</p>
+              <div>
+                <span class="tag ok">Tipo relación: F</span>
+                <span class="tag ok">Caso buscado: Cónyuge</span>
+                <span class="tag warn">Código exacto de cónyuge no visible en este fuente</span>
+              </div>
+            </div>
+            <ul>
+              <li>
+                <div class="node">
+                  <h3>1. Contexto funcional</h3>
+                  <ul>
+                    <li><strong>e01rac</strong>: identifica al titular principal.</li>
+                    <li><strong>e01rnu</strong>: identifica a la persona relacionada.</li>
+                    <li><strong>e01rtp = 'F'</strong>: indica grupo familiar.</li>
+                    <li><strong>e01uc1</strong>: parentesco del relacionado respecto al titular.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>2. Flujo mínimo</h3>
+                  <ul>
+                    <li>Primero puede usarse <code>h01ope = '0001'</code> para preparar un nuevo registro.</li>
+                    <li>La grabación real ocurre en otra operación que cae en <code>valrecord</code>.</li>
+                    <li>En <code>valrecord</code> se valida la existencia del relacionado y luego la relación tipo <code>F</code>.</li>
+                    <li>Si no hay errores, el programa graba en <code>WKCUREL</code>.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>3. Campos mínimos obligatorios</h3>
+                  <ul>
+                    <li><strong>h01ope</strong>: operación de grabación/validación.</li>
+                    <li><strong>e01rcd</strong>: tipo del registro principal.</li>
+                    <li><strong>e01rac</strong>: número del cliente/cuenta principal.</li>
+                    <li><strong>e01rtp = 'F'</strong>: grupo familiar.</li>
+                    <li><strong>e01rcn</strong>: tipo de relacionado.</li>
+                    <li><strong>e01rnu</strong>: número del relacionado.</li>
+                    <li><strong>e01uc1</strong>: código de parentesco.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>4. Valor específico para cónyuge</h3>
+                  <ul>
+                    <li>El programa valida <strong>e01uc1</strong> en la tabla de códigos <code>CNOFC</code>.</li>
+                    <li>La clase usada es <code>9W</code> = parentesco.</li>
+                    <li>Por tanto, <strong>e01uc1</strong> debe contener el código de parentesco equivalente a <strong>cónyuge</strong>.</li>
+                    <li>Ese código exacto no aparece hardcodeado en este fuente.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>5. Validación específica del tipo F</h3>
+                  <ul>
+                    <li><code>valrecord</code> detecta <code>e01rtp = 'F'</code>.</li>
+                    <li>Llama a <code>vfamilyrefer</code>.</li>
+                    <li><code>vfamilyrefer</code> valida que <code>e01uc1</code> exista en <code>cnocfl = '9W'</code>.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>6. Validación implícita del relacionado</h3>
+                  <ul>
+                    <li>Si <strong>e01rcn = 'C'</strong>, el relacionado debe existir en <code>CUMST</code> o <code>WKCUMST</code>.</li>
+                    <li>Si no es cliente, debe existir en <code>CUENT</code> o <code>WKCUENT</code>.</li>
+                    <li>Si no existe, el alta falla con error.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>7. Campos no obligatorios en este caso</h3>
+                  <ul>
+                    <li>No se ve obligatoriedad para <code>e01per</code> (porcentaje).</li>
+                    <li>No se ve obligatoriedad para <code>e01amt</code> (monto).</li>
+                    <li>No se ve obligatoriedad para fechas <code>e01idm/e01idd/e01idy</code>.</li>
+                    <li>No se ve obligatoriedad para <code>e01rmk</code> o <code>e01dsc</code>.</li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Resumen práctico</h2>
+      <div class="content">
+        <div class="box">
+          <h3>Campos mínimos</h3>
+          <div class="kv">
+            <div>h01ope</div><div>Operación de grabación/validación. <span class="small">Nota: <code>'0001'</code> prepara, pero no graba.</span></div>
+            <div>e01rcd</div><div>Tipo del registro principal.</div>
+            <div>e01rac</div><div>Número del cliente o cuenta principal.</div>
+            <div>e01rtp</div><div><code>'F'</code> = Grupo Familiar.</div>
+            <div>e01rcn</div><div>Tipo de relacionado. Si el cónyuge es cliente, normalmente <code>'C'</code>.</div>
+            <div>e01rnu</div><div>Número del relacionado (cónyuge).</div>
+            <div>e01uc1</div><div>Código de parentesco. Debe corresponder a cónyuge en la tabla <code>9W</code>.</div>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>Valores identificados en el fuente</h3>
+          <p><span class="tag ok">e01rtp = 'F'</span></p>
+          <p><span class="tag ok">e01rcn = 'C'</span> si el cónyuge está registrado como cliente.</p>
+          <p><span class="tag ok">Tabla de parentesco = '9W'</span></p>
+          <p><span class="tag warn">Valor exacto del código de cónyuge: no visible en ESD4000</span></p>
+        </div>
+
+        <div class="box">
+          <h3>Ejemplo conceptual</h3>
+<pre><code>h01ope = [operación de grabación]
+e01rcd = [tipo principal]
+e01rac = 123456789
+e01rtp = 'F'
+e01rcn = 'C'
+e01rnu = 987654321
+e01uc1 = [código de parentesco para cónyuge en 9W]</code></pre>
+        </div>
+
+        <div class="box">
+          <h3>Conclusión</h3>
+          <p>
+            Para dar de alta una relación de grupo familiar para cónyuge, el programa exige principalmente la
+            identificación del titular, la identificación del relacionado, el tipo de relación <code>F</code> y el
+            parentesco en <code>e01uc1</code>. El dato faltante a confirmar fuera de este fuente es el código exacto de
+            <strong>cónyuge</strong> dentro de la tabla <code>9W</code>.
+          </p>
+        </div>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>
