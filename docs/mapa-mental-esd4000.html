@@ -180,8 +180,8 @@
     <h1>Mapa mental: alta de relación de grupo familiar para cónyuge</h1>
     <p class="subtitle">
       Resumen visual basado en el fuente RPGLE <strong>ESD4000</strong>. Esta página explica los campos mínimos obligatorios,
-      los valores identificados en el código y las validaciones que aplica el programa al crear una relación de tipo
-      <strong>Grupo Familiar</strong> para un <strong>cónyuge</strong>.
+      los valores identificados en el código, el propósito general del programa y los archivos principales usados,
+      además de las validaciones que aplica al crear una relación de tipo <strong>Grupo Familiar</strong> para un <strong>cónyuge</strong>.
     </p>
   </header>
 
@@ -201,6 +201,40 @@
               </div>
             </div>
             <ul>
+              <li>
+                <div class="node">
+                  <h3>0. Propósito general</h3>
+                  <p>
+                    ESD4000 es un programa RPGLE de mantenimiento de relaciones entre clientes/cuentas y terceros relacionados.
+                    Permite consultar, crear, validar, listar, actualizar y marcar para eliminación registros de relación en
+                    <code>CUREL</code> y <code>WKCUREL</code>.
+                  </p>
+                  <ul>
+                    <li>Administra relaciones como grupo familiar, beneficiarios, firmantes, referencias y representantes.</li>
+                    <li>Valida reglas según el tipo de relación.</li>
+                    <li>Actualiza archivos de trabajo para procesos de aprobación.</li>
+                    <li>Envía respuesta al invocador con datos y errores.</li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <div class="node">
+                  <h3>0.1 Archivos principales usados</h3>
+                  <p>El programa trabaja con archivos maestros, archivos de trabajo, catálogos y archivos de control.</p>
+                  <ul>
+                    <li><code>CUMST</code>: maestro de clientes</li>
+                    <li><code>CUENT</code>: maestro de entidades/no clientes</li>
+                    <li><code>CUREL</code>: maestro de relaciones</li>
+                    <li><code>WKCUMST</code>: work de clientes</li>
+                    <li><code>WKCUENT</code>: work de entidades/no clientes</li>
+                    <li><code>WKCUREL</code>: work de relaciones</li>
+                    <li><code>CNOFC</code>: tabla de códigos y descripciones</li>
+                    <li><code>CUFIN</code>, <code>CUPEP</code>: datos complementarios del cliente</li>
+                    <li><code>CNTRLCNT</code>, <code>CNTRLBTH</code>, <code>CNTRLBRN</code>: control/configuración</li>
+                    <li><code>ACMSTL0</code>, <code>DEALSL0</code>, <code>LCMSTL0</code>, <code>DCMSTL0</code>, <code>ROCOLL0</code>: productos/cuentas relacionadas</li>
+                  </ul>
+                </div>
+              </li>
               <li>
                 <div class="node">
                   <h3>1. Contexto funcional</h3>
@@ -288,6 +322,24 @@
     <aside class="panel">
       <h2>Resumen práctico</h2>
       <div class="content">
+        <div class="box">
+          <h3>Propósito general</h3>
+          <p>
+            ESD4000 mantiene relaciones entre clientes o cuentas principales y personas o entidades relacionadas.
+            Soporta consulta, alta, validación, listado, actualización y marcado para eliminación de relaciones,
+            usando archivos maestros y archivos de trabajo para aprobación posterior.
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>Archivos principales usados</h3>
+          <p><strong>Maestros:</strong> <code>CUMST</code>, <code>CUENT</code>, <code>CUREL</code></p>
+          <p><strong>Work:</strong> <code>WKCUMST</code>, <code>WKCUENT</code>, <code>WKCUREL</code></p>
+          <p><strong>Catálogos:</strong> <code>CNOFC</code></p>
+          <p><strong>Complementarios:</strong> <code>CUFIN</code>, <code>CUPEP</code></p>
+          <p><strong>Control:</strong> <code>CNTRLCNT</code>, <code>CNTRLBTH</code>, <code>CNTRLBRN</code></p>
+        </div>
+
         <div class="box">
           <h3>Campos mínimos</h3>
           <div class="kv">
