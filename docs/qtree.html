@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QTREE - Página de análisis</title>
+  <style>
+    :root {
+      --bg1: #0b1020;
+      --bg2: #111936;
+      --card: rgba(18, 25, 51, 0.94);
+      --border: #2b386d;
+      --text: #ecf2ff;
+      --muted: #b9c5e3;
+      --accent: #7cc4ff;
+      --accent2: #8ef0c9;
+      --shadow: 0 12px 30px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+    .back {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .hero, .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .hero {
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, rgba(18,49,94,.98), rgba(27,75,140,.96));
+      border-color: #6fb7ff;
+    }
+    h1 { margin: 0 0 10px; font-size: 2.1rem; }
+    h2 { margin: 0 0 12px; color: var(--accent); }
+    p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--accent2);
+      border: 1px solid rgba(142,240,201,.35);
+      background: rgba(142,240,201,.12);
+    }
+    ul { margin: 10px 0 0 18px; color: var(--muted); }
+    li { margin: 8px 0; line-height: 1.5; }
+    code {
+      background: rgba(255,255,255,.06);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #dff0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="./index.html">← Volver al menú</a>
+
+    <section class="hero">
+      <h1>QTREE</h1>
+      <p>
+        Página base para el análisis de QTREE. Esta vista se creó para que el menú principal tenga un destino válido
+        en GitHub Pages y puedas extenderla después con el contenido funcional o técnico que necesites.
+      </p>
+      <span class="tag">Página disponible</span>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Estado actual</h2>
+        <p>
+          Esta página sirve como placeholder navegable para <strong>QTREE</strong>. Ya puede abrirse desde el
+          <code>index.html</code> del sitio publicado en <code>/docs</code>.
+        </p>
+      </article>
+
+      <article class="panel">
+        <h2>Siguientes pasos sugeridos</h2>
+        <ul>
+          <li>Agregar propósito general del fuente QTREE.</li>
+          <li>Incluir flujo principal de ejecución.</li>
+          <li>Documentar parámetros de entrada y salida.</li>
+          <li>Agregar archivos/tablas principales usados.</li>
+          <li>Crear mapa mental o diagrama de flujo similar a ESD4000.</li>
+        </ul>
+      </article>
+    </section>
+  </div>
+</body>
+</html>
