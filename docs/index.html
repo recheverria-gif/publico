@@ -66,6 +66,12 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(124,196,255,.15);
     }
 
     .badge {
@@ -111,6 +117,12 @@
       padding: 10px 14px;
       border-radius: 12px;
       font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    a.button:hover {
+      background: linear-gradient(180deg, #2463c7, #1d5fa8);
+      border-color: #8fd4ff;
     }
 
     footer {
@@ -124,15 +136,21 @@
       padding: 2px 6px;
       border-radius: 6px;
     }
+
+    .update-info {
+      color: var(--accent2);
+      font-size: .85rem;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Menú de mapas mentales</h1>
+      <h1>📚 Menú de mapas mentales</h1>
       <p class="lead">
-        Página índice para acceder rápidamente a los análisis y mapas mentales disponibles en el repositorio.
-        Actualmente incluye accesos a <strong>QTREE</strong>, <strong>ESD4000</strong> e <strong>IODL0150</strong>.
+        Página índice central para acceder rápidamente a los análisis, mapas mentales y diagramas de flujo disponibles en el repositorio.
+        Actualmente incluye accesos a <strong>QTREE</strong>, <strong>ESD4000</strong>, <strong>IODL0150</strong> y más.
       </p>
     </header>
 
@@ -145,8 +163,9 @@
           incluyendo campos mínimos obligatorios y valores identificados en el código.
         </p>
         <div class="actions">
-          <a class="button" href="./mapa-mental-esd4000.html">Abrir mapa ESD4000</a>
+          <a class="button" href="./mapa-mental-esd4000.html">📊 Abrir mapa ESD4000</a>
         </div>
+        <div class="update-info">Última actualización: Incluye análisis completo</div>
       </article>
 
       <article class="card">
@@ -154,26 +173,31 @@
         <h2>QTREE</h2>
         <p>
           Acceso a la página de análisis o mapa mental de QTREE desde este índice central.
+          Contiene el árbol de relaciones y estructura de datos.
         </p>
         <div class="actions">
-          <a class="button" href="./qtree.html">Abrir página QTREE</a>
+          <a class="button" href="./qtree.html">🌳 Abrir página QTREE</a>
         </div>
+        <div class="update-info">Estructura documentada</div>
       </article>
 
       <article class="card">
         <span class="badge ok">Disponible</span>
         <h2>IODL0150</h2>
         <p>
-          Página de flujo del proceso IODL0150 con análisis detallado de los componentes y su interacción.
+          Página de flujo del proceso IODL0150 con análisis detallado de los componentes y su interacción
+          en el sistema de tratamiento de datos.
         </p>
         <div class="actions">
-          <a class="button" href="./IODL0150_flujo.html">Abrir flujo IODL0150</a>
+          <a class="button" href="./IODL0150_flujo.html">⚙️ Abrir flujo IODL0150</a>
         </div>
+        <div class="update-info">Flujo de proceso completo</div>
       </article>
     </section>
 
     <footer>
-      Si el archivo no se encuentra, verifica que el nombre del archivo sea correcto.
+      <p>📌 <strong>Nota:</strong> Si un archivo no se encuentra, verifica que el nombre sea correcto o contacta al administrador del repositorio.</p>
+      <p>✅ Última actualización: 19 de junio de 2026 | Mantenedor: recheverria-gif</p>
     </footer>
   </div>
 </body>
