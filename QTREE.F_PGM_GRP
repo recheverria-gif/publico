@@ -1,2 +1,0 @@
- create table QTEMP/TABLAPGM as (SELECT * FROM QTEMP/REFPASO
-  ) WITH DATA;
